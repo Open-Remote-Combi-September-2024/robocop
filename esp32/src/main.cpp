@@ -129,6 +129,42 @@ double listen() {
     return 20*log10(rms);
 }
 
+#include <sys/socket.h> // For socket functions
+#include <arpa/inet.h>  // For sockaddr_in
+#include <unistd.h>     // For close
+void alert_cue() {
+    Serial.printf("hi");
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        perror("Socket creation failed");
+    }
+    
+    Serial.printf("hi");
+
+    // Define server address
+    struct sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(1337); // Port 1337
+    //server.sin_addr.s_addr = inet_addr("192.168.1.14"); // Server IP
+    server.sin_addr.s_addr = inet_addr("192.168.137.20"); // Server IP
+
+    // Connect to the server
+    if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
+        perror("Connection failed");
+        close(sock);
+    }
+
+    // Send some data
+    const char *message = "scream";
+    if (send(sock, message, strlen(message), 0) < 0) {
+        perror("Send failed");
+    }
+    
+    // Close the socket
+    close(sock);
+}
+
+
 void loop() {
     // check if we're connected for 5 times
     check_openremote_connection();
@@ -143,6 +179,10 @@ void loop() {
     double db = listen();
 
     Serial.printf("Decibel: %f\n", db);
+
+    if (db > 50)
+    { alert_cue(); }
+
 
     sprintf(sound_level, "%e", db);
     if (client.publish(lastwill,  sound_level))
