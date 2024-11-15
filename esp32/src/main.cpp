@@ -1,10 +1,14 @@
+
 #include "secret.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <vector>
 #include <math.h>
 
-#define SENSOR_PIN 34 // ESP32 pin GPIO34 connected to the OUT pin of the sound sensor
+#define SENSOR_PIN 34   // ESP32 pin GPIO34 connected to the OUT pin of the sound sensor
+#define BUZZER_PIN 12
+#define VREF 1.1        // ESP32 ADC reference value
+#define COEFFICIENT 50
 
 WiFiClient askClient;
 PubSubClient client(askClient);
@@ -14,7 +18,7 @@ void check_openremote_connection() {
     int counter = 5;
     while (!client.connected()) {
         Serial.print("Attempting MQTT connection...");
-        // Attempt connection
+        // Attempt to connect
         if (!client.connect(ClientID, username, mqttpass, lastwill, 1, 1, lastwillmsg))
         {
             Serial.print("failed");
@@ -68,6 +72,38 @@ void connect_wifi(const char* ssid, const char* password) {
     check_wifi_connection();
 }
 
+int min(int arr[], int size) {
+    if (size <= 0) {
+        return -1;
+    }
+
+    int min = arr[0];
+    
+    for (int i = 1; i < size; i++) {
+        if (arr[i] < min) {
+            min = arr[i];
+        }
+    }
+
+    return min;
+}
+
+int max(int arr[], int size) {
+    if (size <= 0) {
+        return -1;
+    }
+
+    int max = arr[0];
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+    }
+
+    return max;
+}
+
 void setup() {
     delay(5000);
     Serial.begin(115200); delay(10);
@@ -98,41 +134,26 @@ void setup() {
     //============ END ============//
 }
 
+#define SIZE_OF_SENSOR_VALUES 20
+#define PIN_QUIET 3
+#define PIN_MODERATE 4
+#define PIN_LOUD 5
 const int sampleWindow = 100;    // Sample window width in mS (100 mS = 40Hz)
 int sensorValues[SIZE_OF_SENSOR_VALUES];
 char sound_level[16];
 
-double calculateRMS(const std::vector<uint16_t>& samples) {
-    double sum = 0;
 
-    for (uint16_t sample : samples) {
-        sum += sample * sample; // Square the sample
-    }
-
-    double mean = sum / (double)samples.size(); // Calculate mean of squares
-    
-    return std::sqrt(mean);
-}
-
-double listen() {
-    std::vector<uint16_t> samples;
-    const int sampleWindow = 50;    // Sample window width in mS (100 mS = 40Hz) human ear 20 Hz - 20000 Hz
-    uint16_t sample;
-
-    int startMillis = millis();
-    while (millis() - startMillis < sampleWindow) {
-        sample = analogRead(SENSOR_PIN);
-        samples.push_back(sample);
-    }
-
-    double rms = calculateRMS(samples);
-    return 20*log10(rms);
+float listen() {
+    float voltageValue,dbValue;
+    voltageValue = analogRead(SENSOR_PIN) / 1024.0 * VREF;
+    dbValue = voltageValue * COEFFICIENT;      //convert voltage to dB
+    return dbValue;
 }
 
 #include <sys/socket.h> // For socket functions
 #include <arpa/inet.h>  // For sockaddr_in
 #include <unistd.h>     // For close
-void alert_cue() {
+void cue() {
     Serial.printf("hi");
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -164,7 +185,6 @@ void alert_cue() {
     close(sock);
 }
 
-
 void loop() {
     // check if we're connected for 5 times
     check_openremote_connection();
@@ -176,13 +196,14 @@ void loop() {
     }
 
     Serial.println("Listening...");
-    double db = listen();
+    float db = listen();
+    delay(125);
 
-    Serial.printf("Decibel: %f\n", db);
+    Serial.print(db,1);
+    Serial.println(" dBA");
 
     if (db > 50)
-    { alert_cue(); }
-
+    { cue(); }
 
     sprintf(sound_level, "%e", db);
     if (client.publish(lastwill,  sound_level))
@@ -193,5 +214,4 @@ void loop() {
 
     printf("\n\n");
 
-    delay(200);
 }
