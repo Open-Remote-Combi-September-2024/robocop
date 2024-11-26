@@ -5,6 +5,10 @@
 #include <vector>
 #include <math.h>
 #include "BluetoothA2DPSource.h"
+#include "AudioTools.h"
+#include "AudioTools/AudioLibs/A2DPStream.h"
+#include "AudioTools/AudioLibs/AudioSourceSDFAT.h"
+#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 
 #define SENSOR_PIN 34   // ESP32 pin GPIO34 connected to the OUT pin of the sound sensor
 #define BUZZER_PIN 12
@@ -147,5 +151,6 @@ void loop() {
 
     printf("\n\n");
     */
+
 
 }
