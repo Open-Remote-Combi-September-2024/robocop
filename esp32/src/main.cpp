@@ -111,6 +111,7 @@ void setup() {
     pinMode(BUZZER_PIN, OUTPUT);
 
 
+    /*
     //============ WiFi Setup ============//
     connect_wifi(ssid, password);
 
@@ -122,16 +123,18 @@ void setup() {
     Serial.printf("Connected to %s\nObtained IP: ");
     Serial.println(WiFi.localIP());
     //============ END ============//
-
-
+    */
+    /*
     //============ MQTT Setup ============//
     client.setServer(mqtt_server, mqtt_port);
     client.setCallback(callback);
     //============ END ============//
-
+    */
+    /*
     //============ Sound Sensor Setup ============//
     pinMode(SENSOR_PIN, INPUT);
     //============ END ============//
+    */
 }
 
 #define SIZE_OF_SENSOR_VALUES 20
