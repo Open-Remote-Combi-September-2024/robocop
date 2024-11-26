@@ -122,6 +122,7 @@ float listen() {
 }
 
 void loop() {
+    /*
     // check if we're connected for 5 times
     check_openremote_connection();
 
@@ -143,8 +144,8 @@ void loop() {
     { printf("Publish success :)\n"); }
     else
     { printf("Publish failed :(\n"); }
-    
 
     printf("\n\n");
+    */
 
 }
