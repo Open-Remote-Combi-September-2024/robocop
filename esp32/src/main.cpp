@@ -73,44 +73,11 @@ void connect_wifi(const char* ssid, const char* password) {
     check_wifi_connection();
 }
 
-int min(int arr[], int size) {
-    if (size <= 0) {
-        return -1;
-    }
-
-    int min = arr[0];
-    
-    for (int i = 1; i < size; i++) {
-        if (arr[i] < min) {
-            min = arr[i];
-        }
-    }
-
-    return min;
-}
-
-int max(int arr[], int size) {
-    if (size <= 0) {
-        return -1;
-    }
-
-    int max = arr[0];
-
-    for (int i = 1; i < size; i++) {
-        if (arr[i] > max) {
-            max = arr[i];
-        }
-    }
-
-    return max;
-}
-
 void setup() {
     delay(5000);
     Serial.begin(115200); delay(10);
 
     pinMode(BUZZER_PIN, OUTPUT);
-
 
     /*
     //============ WiFi Setup ============//
@@ -170,9 +137,6 @@ void loop() {
 
     Serial.print(db,1);
     Serial.println(" dBA");
-
-    if (db > 50)
-    { cue(); }
 
     sprintf(sound_level, "%e", db);
     if (client.publish(lastwill,  sound_level))
