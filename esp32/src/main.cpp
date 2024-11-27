@@ -1,9 +1,10 @@
 
+#include <WiFi.h>
 #include "secret.h"
 #include "AudioTools.h"
 #include "BluetoothA2DP.h"
-#include "AudioTools/AudioLibs/A2DPStream.h"
-#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
+//#include "AudioTools/AudioLibs/A2DPStream.h"
+//#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 #include <PubSubClient.h>
 #include <vector>
 #include <math.h>
@@ -78,16 +79,18 @@ void connect_wifi(const char* ssid, const char* password) {
 }
 */
 
-const char* recordings[] = {"http://192.168.1.14:8000/shutup.mp3"};
-URLStream urlStream(ssid, password);
-AudioSourceURL source(urlStream, recordings, "audio/mp3");
-A2DPStream out;
-MP3DecoderHelix decoder;
-AudioPlayer player(source, out, decoder);
+//const char* recordings[] = {"http://192.168.1.14:8000/shutup.mp3"};
+//URLStream urlStream(ssid, password);
+//AudioSourceURL source(urlStream, recordings, "audio/mp3");
+//A2DPStream out;
+//MP3DecoderHelix decoder;
+//AudioPlayer player(source, out, decoder);
+#include "audio_recordings.h"
+BluetoothA2DPSource a2dp_source;
+SoundData *shutup = new OneChannelSoundData((int16_t*)shutup_raw, shutup_raw_len/2);
 void setup() {
-    delay(5000);
+    delay(2000);
     Serial.begin(115200); delay(10);
-
     pinMode(BUZZER_PIN, OUTPUT);
 
     /*
@@ -115,27 +118,21 @@ void setup() {
     //============ END ============//
     */
 
+    a2dp_source.start("Jabra Speak 710");  
+    a2dp_source.set_volume(40);
+    a2dp_source.write_data(shutup);
+
+   /*
     player.setVolume(0.1);
     player.begin();
 
-    Serial.println("HEY");
     auto cfg = out.defaultConfig(TX_MODE);
     cfg.silence_on_nodata = true;   // prevent disconnect when there is no audio data
     cfg.name = "Jabra Speak 710";   // set the device here. Otherwise the first available device is used for output
-    cfg.auto_reconnect = true;    // if this is use we just quickly connect to the last device ignoring cfg.name
-    Serial.println("HOI");
+    //cfg.auto_reconnect = true;    // if this is use we just quickly connect to the last device ignoring cfg.name
     out.begin(cfg);
-
+    */
 }
-
-#define SIZE_OF_SENSOR_VALUES 20
-#define PIN_QUIET 3
-#define PIN_MODERATE 4
-#define PIN_LOUD 5
-const int sampleWindow = 100;    // Sample window width in mS (100 mS = 40Hz)
-int sensorValues[SIZE_OF_SENSOR_VALUES];
-char sound_level[16];
-
 
 float listen() {
     float voltageValue,dbValue;
@@ -171,5 +168,8 @@ void loop() {
     printf("\n\n");
     */
 
+   /*
+    Serial.println("loop");
     player.copy();
+    */
 }
