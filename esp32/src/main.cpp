@@ -1,14 +1,13 @@
 
 #include "secret.h"
-#include <WiFi.h>
+#include "AudioTools.h"
+#include "BluetoothA2DP.h"
+#include "AudioTools/AudioLibs/A2DPStream.h"
+#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
 #include <PubSubClient.h>
 #include <vector>
 #include <math.h>
-#include "BluetoothA2DPSource.h"
-#include "AudioTools.h"
-#include "AudioTools/AudioLibs/A2DPStream.h"
-#include "AudioTools/AudioLibs/AudioSourceSDFAT.h"
-#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
+//#include "AudioTools/AudioLibs/AudioSourceSDFAT.h"
 
 #define SENSOR_PIN 34   // ESP32 pin GPIO34 connected to the OUT pin of the sound sensor
 #define BUZZER_PIN 12
@@ -66,6 +65,7 @@ void check_wifi_connection()
     }
 }
 
+/*
 void connect_wifi(const char* ssid, const char* password) {
     WiFi.disconnect(true);  // Disconnect from the previous WiFi
     Serial.printf("Connecting to %s\n", ssid);
@@ -76,7 +76,14 @@ void connect_wifi(const char* ssid, const char* password) {
     // Try 5 times till connected
     check_wifi_connection();
 }
+*/
 
+const char* recordings[] = {"http://192.168.1.14:8000/shutup.mp3"};
+URLStream urlStream(ssid, password);
+AudioSourceURL source(urlStream, recordings, "audio/mp3");
+A2DPStream out;
+MP3DecoderHelix decoder;
+AudioPlayer player(source, out, decoder);
 void setup() {
     delay(5000);
     Serial.begin(115200); delay(10);
@@ -107,6 +114,18 @@ void setup() {
     pinMode(SENSOR_PIN, INPUT);
     //============ END ============//
     */
+
+    player.setVolume(0.1);
+    player.begin();
+
+    Serial.println("HEY");
+    auto cfg = out.defaultConfig(TX_MODE);
+    cfg.silence_on_nodata = true;   // prevent disconnect when there is no audio data
+    cfg.name = "Jabra Speak 710";   // set the device here. Otherwise the first available device is used for output
+    cfg.auto_reconnect = true;    // if this is use we just quickly connect to the last device ignoring cfg.name
+    Serial.println("HOI");
+    out.begin(cfg);
+
 }
 
 #define SIZE_OF_SENSOR_VALUES 20
@@ -152,5 +171,5 @@ void loop() {
     printf("\n\n");
     */
 
-
+    player.copy();
 }
