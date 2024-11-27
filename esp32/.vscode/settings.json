@@ -3,6 +3,7 @@
         "*.embeddedhtml": "html",
         "initializer_list": "cpp",
         "cmath": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "*.tcc": "cpp"
     }
 }
