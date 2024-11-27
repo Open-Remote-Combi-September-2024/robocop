@@ -66,7 +66,6 @@ void check_wifi_connection()
     }
 }
 
-/*
 void connect_wifi(const char* ssid, const char* password) {
     WiFi.disconnect(true);  // Disconnect from the previous WiFi
     Serial.printf("Connecting to %s\n", ssid);
@@ -77,7 +76,6 @@ void connect_wifi(const char* ssid, const char* password) {
     // Try 5 times till connected
     check_wifi_connection();
 }
-*/
 
 //const char* recordings[] = {"http://192.168.1.14:8000/shutup.mp3"};
 //URLStream urlStream(ssid, password);
@@ -93,7 +91,6 @@ void setup() {
     Serial.begin(115200); delay(10);
     pinMode(BUZZER_PIN, OUTPUT);
 
-    /*
     //============ WiFi Setup ============//
     connect_wifi(ssid, password);
 
@@ -105,7 +102,7 @@ void setup() {
     Serial.printf("Connected to %s\nObtained IP: ");
     Serial.println(WiFi.localIP());
     //============ END ============//
-    */
+
     /*
     //============ MQTT Setup ============//
     client.setServer(mqtt_server, mqtt_port);
@@ -118,9 +115,8 @@ void setup() {
     //============ END ============//
     */
 
+    a2dp_source.set_local_name("esp32");
     a2dp_source.start("Jabra Speak 710");  
-    a2dp_source.set_volume(40);
-    a2dp_source.write_data(shutup);
 
    /*
     player.setVolume(0.1);
@@ -142,8 +138,8 @@ float listen() {
 }
 
 void loop() {
-    /*
     // check if we're connected for 5 times
+/*
     check_openremote_connection();
 
     if (client.state() != MQTT_CONNECTED)
@@ -151,6 +147,7 @@ void loop() {
         Serial.println("OpenRemote MQTT connection failed");
         esp_restart();
     }
+*/
 
     Serial.println("Listening...");
     float db = listen();
@@ -159,6 +156,7 @@ void loop() {
     Serial.print(db,1);
     Serial.println(" dBA");
 
+    /*
     sprintf(sound_level, "%e", db);
     if (client.publish(lastwill,  sound_level))
     { printf("Publish success :)\n"); }
@@ -168,9 +166,17 @@ void loop() {
     printf("\n\n");
     */
 
-   /*
+    /*
     Serial.println("loop");
     player.copy();
     */
-    delay(10);
+    a2dp_source.set_volume(40);
+    a2dp_source.write_data(shutup);
+    a2dp_source.delay_ms(2000);
+    a2dp_source.set_volume(60);
+    a2dp_source.write_data(shutup);
+    a2dp_source.delay_ms(2000);
+    a2dp_source.set_volume(80);
+    a2dp_source.write_data(shutup);
+    a2dp_source.delay_ms(2000);
 }
