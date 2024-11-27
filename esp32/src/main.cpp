@@ -1,7 +1,7 @@
 
 #include <WiFi.h>
 #include "secret.h"
-#include "AudioTools.h"
+//#include "AudioTools.h"
 #include "BluetoothA2DP.h"
 //#include "AudioTools/AudioLibs/A2DPStream.h"
 //#include "AudioTools/AudioCodecs/CodecMP3Helix.h"
@@ -172,4 +172,5 @@ void loop() {
     Serial.println("loop");
     player.copy();
     */
+    delay(10);
 }
